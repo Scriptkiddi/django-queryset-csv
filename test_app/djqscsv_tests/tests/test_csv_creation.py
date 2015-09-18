@@ -20,6 +20,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from itertools import izip_longest as zip_longest
+except ImportError:
+    from itertools import zip_longest as zip_longest
+
 if six.PY3:
     from io import StringIO
 else:
@@ -36,7 +41,7 @@ class CSVTestCase(TestCase):
         csv_data = csv.reader(csv_file, **csv_kwargs)
         iteration_happened = False
         is_first = True
-        test_pairs = itertools.izip_longest(csv_data, expected_data,
+        test_pairs = zip_longest(csv_data, expected_data,
                                             fillvalue=[])
         for csv_row, expected_row in test_pairs:
             if is_first:
@@ -125,7 +130,7 @@ class WriteCSVDataNoVerboseNamesTests(CSVTestCase):
 
     def test_empty_queryset_no_verbose(self):
         self.assertEmptyQuerySetMatches(
-            '\xef\xbb\xbfid,name,address,info,hobby_id,born\r\n',
+            b'\xef\xbb\xbfid,name,address,info,hobby_id,born\r\n'.decode('utf-8'),
             use_verbose_names=False)
 
 
@@ -140,8 +145,7 @@ class WriteCSVDataTests(CSVTestCase):
 
     def test_empty_queryset(self):
         self.assertEmptyQuerySetMatches(
-            '\xef\xbb\xbfID,Person\'s name,address,'
-            'Info on Person,hobby_id,born\r\n')
+            b'\xef\xbb\xbfID,Person\'s name,address,Info on Person,hobby_id,born\r\n'.decode('utf-8'))
 
 
 class FieldHeaderMapTests(CSVTestCase):
@@ -180,8 +184,7 @@ class FieldHeaderMapTests(CSVTestCase):
 
     def test_empty_queryset_custom_headers(self):
         self.assertEmptyQuerySetMatches(
-            '\xef\xbb\xbfID,Person\'s name,'
-            'address,INFORMATION,hobby_id,born\r\n',
+            str(b'\xef\xbb\xbfID,Person\'s name,address,INFORMATION,hobby_id,born\r\n'.decode('utf-8')),
             field_header_map={'info': 'INFORMATION'})
 
 
@@ -292,7 +295,7 @@ class RenderToCSVResponseTests(CSVTestCase):
         response = djqscsv.render_to_csv_response(self.qs,
                                                   use_verbose_names=False)
         self.assertEqual(response['Content-Type'], 'text/csv')
-        self.assertMatchesCsv(response.content.split('\n'),
+        self.assertMatchesCsv(str(response.content).split('\n'),
                               self.FULL_PERSON_CSV_NO_VERBOSE)
 
         self.assertRegexpMatches(response['Content-Disposition'],
@@ -303,7 +306,7 @@ class RenderToCSVResponseTests(CSVTestCase):
                                                   filename="test_csv",
                                                   use_verbose_names=False)
         self.assertEqual(response['Content-Type'], 'text/csv')
-        self.assertMatchesCsv(response.content.split('\n'),
+        self.assertMatchesCsv(str(response.content).split('\n'),
                               self.FULL_PERSON_CSV_NO_VERBOSE)
 
     def test_render_to_csv_response_other_delimiter(self):
@@ -313,7 +316,7 @@ class RenderToCSVResponseTests(CSVTestCase):
                                                   delimiter='|')
 
         self.assertEqual(response['Content-Type'], 'text/csv')
-        self.assertMatchesCsv(response.content.split('\n'),
+        self.assertMatchesCsv(str(response.content).split('\n'),
                               self.FULL_PERSON_CSV_NO_VERBOSE,
                               delimiter="|")
 
@@ -324,5 +327,5 @@ class RenderToCSVResponseTests(CSVTestCase):
                                                   delimiter='|')
 
         self.assertEqual(response['Content-Type'], 'text/csv')
-        self.assertNotMatchesCsv(response.content.split('\n'),
+        self.assertNotMatchesCsv(str(response.content).split('\n'),
                                  self.FULL_PERSON_CSV_NO_VERBOSE)

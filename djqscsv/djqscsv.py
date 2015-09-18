@@ -134,7 +134,7 @@ def generate_filename(queryset, append_datestamp=False):
     Takes a queryset and returns a default
     base filename based on the underlying model
     """
-    base_filename = slugify(unicode(queryset.model.__name__)) + '_export.csv'
+    base_filename = slugify(str(queryset.model.__name__)) + '_export.csv'
 
     if append_datestamp:
         base_filename = _append_datestamp(base_filename)
@@ -154,17 +154,15 @@ def _validate_and_clean_filename(filename):
         else:
             filename = filename[:-4]
 
-    filename = slugify(unicode(filename)) + '.csv'
+    filename = slugify(str(filename)) + '.csv'
     return filename
 
 
 def _safe_utf8_stringify(value):
     if isinstance(value, str):
         return value
-    elif isinstance(value, unicode):
-        return value.encode('utf-8')
     else:
-        return unicode(value).encode('utf-8')
+        return str(value).encode('utf-8')
 
 
 def _sanitize_unicode_record(field_serializer_map, record):
@@ -175,7 +173,7 @@ def _sanitize_unicode_record(field_serializer_map, record):
         if isinstance(value, datetime.datetime):
             return value.isoformat()
         else:
-            return unicode(value)
+            return str(value)
 
     obj = {}
     for key, val in six.iteritems(record):
