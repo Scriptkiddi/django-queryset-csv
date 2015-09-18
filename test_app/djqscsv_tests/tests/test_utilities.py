@@ -127,8 +127,8 @@ class SafeUtf8EncodeTest(TestCase):
                 return self.__unicode__().encode('utf-8')
 
         for val in (u'¯\_(ツ)_/¯', 'plain', r'raw',
-                    b'123', 11312312312313L, False,
-                    datetime.datetime(2001, 01, 01),
+                    b'123', 11312312312313, False,
+                    datetime.datetime(2001, 1, 1),
                     4, None, [], set(), Foo):
 
             first_pass = djqscsv._safe_utf8_stringify(val)

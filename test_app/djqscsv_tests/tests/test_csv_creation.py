@@ -15,8 +15,12 @@ from djqscsv_tests.util import create_people_and_get_queryset
 
 from django.utils import six
 
+try:
+    import itertools.ifilter as filter
+except ImportError:
+    pass
+
 if six.PY3:
-    from functools import filter
     from io import StringIO
 else:
     from StringIO import StringIO
