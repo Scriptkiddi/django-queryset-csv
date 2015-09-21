@@ -121,11 +121,10 @@ class SafeUtf8EncodeTest(TestCase):
     def test_safe_utf8_encode(self):
 
         class Foo(object):
-            def __unicode__(self):
+            def __str__(self):
                 return u'¯\_(ツ)_/¯'
             def __str_(self):
                 return self.__str__().encode('utf-8')
-
         for val in (u'¯\_(ツ)_/¯', 'plain', r'raw',
                     b'123', 11312312312313, False,
                     datetime.datetime(2001, 1, 1),

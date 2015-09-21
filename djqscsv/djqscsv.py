@@ -11,7 +11,7 @@ if not settings.configured:
     settings.configure()  # pragma: no cover
 
 from django.db.models.query import ValuesQuerySet
-
+from builtins import str
 from django.utils import six
 
 """ A simple python package for turning django models into csvs """
@@ -47,7 +47,6 @@ def render_to_csv_response(queryset, filename=None, append_datestamp=False,
     response['Cache-Control'] = 'no-cache'
 
     write_csv(queryset, response, **kwargs)
-
     return response
 
 
@@ -160,6 +159,8 @@ def _validate_and_clean_filename(filename):
 
 def _safe_utf8_stringify(value):
     if isinstance(value, str):
+        return value
+    elif isinstance(value, bytes):
         return value
     else:
         return str(value).encode('utf-8')
