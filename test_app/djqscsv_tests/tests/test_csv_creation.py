@@ -40,7 +40,8 @@ class CSVTestCase(TestCase):
 
     def csv_match(self, csv_file, expected_data, **csv_kwargs):
         assertion_results = []
-
+        if six.PY2:
+            csv_file = list(map(lambda x: x.encode('utf-8'), csv_file))
         iteration_happened = False
         is_first = True
         csv_data = csv.reader(csv_file, **csv_kwargs)
@@ -50,9 +51,12 @@ class CSVTestCase(TestCase):
         for csv_row, expected_row in test_pairs:
             if is_first:
                 # add the BOM to the data
-                expected_row = ([str(b'\xef\xbb\xbf'.decode('utf-8')) + expected_row[0]] +
-                                expected_row[1:])
-
+                if six.PY2:
+                    expected_row = ([expected_row[0].encode('utf-8-sig')] +
+                                    expected_row[1:])
+                else:
+                    expected_row = ([str(b'\xef\xbb\xbf'.decode('utf-8'))+expected_row[0]] +
+                                    expected_row[1:])
                 is_first = False
             iteration_happened = True
             assertion_results.append(csv_row == expected_row)
